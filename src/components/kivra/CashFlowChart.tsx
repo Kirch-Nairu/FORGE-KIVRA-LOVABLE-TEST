@@ -1,12 +1,14 @@
 import React from 'react';
 import { DailyProjection } from '../../domain/finance/cashFlow';
 import { formatPesos } from '../../domain/money';
+import { useKivra } from '../../state/kivraStore';
 
 interface CashFlowChartProps {
   projections: DailyProjection[];
 }
 
 export const CashFlowChart: React.FC<CashFlowChartProps> = ({ projections }) => {
+  const { isPrivacyMasked } = useKivra();
   if (projections.length === 0) return null;
 
   const balances = projections.map((p) => p.projectedBalanceCentavos);
@@ -26,7 +28,9 @@ export const CashFlowChart: React.FC<CashFlowChartProps> = ({ projections }) => 
     <div className="w-full bg-surface border border-ink-hairline rounded-lg p-3">
       <div className="flex justify-between text-xs text-ink-muted mb-2">
         <span>30-Day Projected Cash Flow Line</span>
-        <span className="tabular-nums">Min: {formatPesos(min)} · Peak: {formatPesos(max)}</span>
+        <span className="tabular-nums" aria-label={isPrivacyMasked ? 'Projected amounts hidden for privacy' : undefined}>
+          {isPrivacyMasked ? 'Min: ₱•••••• · Peak: ₱••••••' : `Min: ${formatPesos(min)} · Peak: ${formatPesos(max)}`}
+        </span>
       </div>
       <div className="relative h-24 w-full">
         <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full overflow-visible">
