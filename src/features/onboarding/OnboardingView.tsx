@@ -16,8 +16,6 @@ interface OnboardingProps {
   onComplete: () => void;
 }
 
-const PROTOTYPE_DATE = '2026-10-07';
-
 const accountTypeFor = (label: string): AccountType => {
   if (label === 'Cash') return 'cash';
   if (label === 'GCash' || label === 'Maya') return 'ewallet';
@@ -319,7 +317,7 @@ export const OnboardingView: React.FC<OnboardingProps> = ({ onComplete }) => {
         {
           id: 'custom_goal_reservation',
           title: `${primaryGoal} allocation`,
-          amountCentavos: Math.min(100000, Math.max(0, spendableCentavos / 10)),
+          amountCentavos: Math.round(Math.min(100000, Math.max(0, spendableCentavos / 10))),
           targetDate: '2026-10-14',
           purpose: 'Prototype protected goal allocation',
           isLocked: true,
