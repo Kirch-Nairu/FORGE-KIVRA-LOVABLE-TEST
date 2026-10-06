@@ -9,7 +9,7 @@ import { evaluateAffordability } from '../../domain/finance/affordability';
 import { deriveAllPatterns } from '../../domain/finance/patterns';
 import { prototypeClock } from '../../domain/clock';
 import { maskCurrencyText } from '../../lib/privacy';
-import { ArrowUpRight, ArrowDownLeft, ShieldCheck, HelpCircle, Calculator, Target, Clock, AlertTriangle } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, ShieldCheck, HelpCircle, Calculator, Target, Clock } from 'lucide-react';
 
 export const TodayView: React.FC<{ onNavigate: (tab: string) => void; onQuickAdd: () => void }> = ({ onNavigate, onQuickAdd }) => {
   const { currentPersona, safeToSpend, isPrivacyMasked } = useKivra();
@@ -143,7 +143,7 @@ export const TodayView: React.FC<{ onNavigate: (tab: string) => void; onQuickAdd
                   {affordVerdict.canAffordWithoutRisk ? 'Safe to buy' : 'Cuts into Runway'}
                 </span>
               </div>
-              <p className="text-ink-muted">{affordVerdict.rationale}</p>
+              <p className="text-ink-muted">{maskCurrencyText(affordVerdict.rationale, isPrivacyMasked)}</p>
               <div className="pt-2 flex justify-between border-t border-ink-hairline text-ink">
                 <span>New Daily Allowance:</span>
                 <span className="tabular-nums font-semibold">
