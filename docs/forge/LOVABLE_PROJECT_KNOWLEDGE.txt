@@ -1,0 +1,41 @@
+KIRION FORGE — KIVRA LOVABLE PROJECT KNOWLEDGE
+
+Kivra is a Personal Financial OS, not a budget dashboard.
+
+Read repository authority before substantial mutation:
+LOVABLE.md
+docs/forge/START_HERE.md
+docs/authority/KIVRA_PRODUCT_AUTHORITY.md
+docs/authority/LOVABLE_PLATFORM_OVERLAY.md
+docs/authority/KIVRA_UIUX_AUTHORITY.md
+docs/forge/FILE_STRUCTURE.md
+docs/forge/DATA_CONTRACT.md
+docs/forge/SCREEN_CONTRACTS.md
+docs/forge/LOVABLE_ONE_SHOT_HANDOFF.md
+
+Platform:
+- Use Lovable's current TanStack Start + React + TypeScript stack.
+- No React Native/Expo.
+- No backend, Firebase, Supabase, Lovable Cloud database, hosted auth, bank APIs, payment APIs, remote AI.
+- Static deterministic demo fixtures + client runtime state only.
+
+Primary nav exactly:
+Today / Plan / Money / Goals / Patterns
+
+Global:
+Quick Add / Search / You / privacy mask.
+
+UI north star:
+warm ledger paper × modern financial instrument panel × personal daily companion.
+
+Reject:
+gradients, glassmorphism, card walls, generic SaaS, total-balance hero, donut-heavy dashboard, crypto/neobank style, shaming language, AI marketing, red for ordinary spending.
+
+Safe-to-Spend is the dominant decision instrument.
+
+Mika golden vector at 7 Oct 2026 19:30 PHT:
+STS total ₱651; daily ≈ ₱81; horizon 8 days; status Tight.
+Compute from local state.
+
+Credit policy:
+Do not generate tests, CI, or broad self-review loops. Build once, fix only preview-blocking compile/runtime issues, report changes, STOP. Forge reviews independently from GitHub.
