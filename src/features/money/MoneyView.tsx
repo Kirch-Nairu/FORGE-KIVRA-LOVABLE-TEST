@@ -2,10 +2,11 @@ import React from 'react';
 import { useKivra } from '../../state/kivraStore';
 import { SectionHeader } from '../../components/kivra/SectionHeader';
 import { MoneyFigure } from '../../components/kivra/MoneyFigure';
-import { Wallet, Landmark, CreditCard, Users } from 'lucide-react';
+import { Wallet, Landmark } from 'lucide-react';
+import { privacyMoneyText } from '../../lib/privacy';
 
 export const MoneyView: React.FC = () => {
-  const { currentPersona } = useKivra();
+  const { currentPersona, isPrivacyMasked } = useKivra();
 
   const totalAssets = currentPersona.accounts.reduce((s, a) => s + a.balanceCentavos, 0);
   const totalDebts = currentPersona.debts.reduce((s, d) => s + d.remainingBalanceCentavos, 0);
@@ -58,7 +59,7 @@ export const MoneyView: React.FC = () => {
               <div>
                 <span className="font-medium text-ink block">{d.name}</span>
                 <span className="text-xs text-ink-muted">
-                  Min Due ₱{(d.minimumDueCentavos / 100).toFixed(0)} by {d.dueDate} ({d.interestRateAnnual}% APR)
+                  Min Due {privacyMoneyText(d.minimumDueCentavos, isPrivacyMasked)} by {d.dueDate} ({d.interestRateAnnual}% APR)
                 </span>
               </div>
               <div className="text-right">
