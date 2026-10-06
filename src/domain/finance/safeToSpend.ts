@@ -5,6 +5,7 @@ export interface SafeToSpendResult {
   reservedCentavos: MoneyCentavos;
   billsCentavos: MoneyCentavos;
   debtMinCentavos: MoneyCentavos;
+  iouPayablesCentavos: MoneyCentavos;
   essentialsCentavos: MoneyCentavos;
   cushionCentavos: MoneyCentavos;
   stsTotalCentavos: MoneyCentavos;
@@ -14,47 +15,61 @@ export interface SafeToSpendResult {
   status: 'Comfortable' | 'Balanced' | 'Tight' | 'Critical';
 }
 
+function atManilaEndOfDay(date: string): number {
+  return new Date(`${date}T23:59:59+08:00`).getTime();
+}
+
 export function calculateSafeToSpend(profile: PersonaProfile, currentDate: Date): SafeToSpendResult {
-  // A = spendable balances
   const accessibleCentavos = profile.accounts
     .filter((a) => a.isSpendable)
     .reduce((sum, a) => sum + a.balanceCentavos, 0);
 
-  // H = next confirmed income date
-  const currentTimestamp = currentDate.getTime();
-  const nextPaydayDate = new Date(profile.nextPayday + 'T00:00:00+08:00');
-  
-  // Calculate days to H
-  const diffTime = nextPaydayDate.getTime() - currentTimestamp;
+  const nextPaydayDate = new Date(`${profile.nextPayday}T00:00:00+08:00`);
+  const diffTime = nextPaydayDate.getTime() - currentDate.getTime();
   const horizonDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
 
-  // R = reservations + scheduled goal contributions <= H
   const reservedCentavos = profile.reservations
-    .filter((r) => new Date(r.targetDate).getTime() <= nextPaydayDate.getTime())
+    .filter((r) => atManilaEndOfDay(r.targetDate) <= atManilaEndOfDay(profile.nextPayday))
     .reduce((sum, r) => sum + r.amountCentavos, 0);
 
-  // B = unpaid commitments + subscriptions due <= H
   const billsCentavos = profile.commitments
-    .filter((c) => !c.isPaid && new Date(c.dueDate + 'T23:59:59+08:00').getTime() <= nextPaydayDate.getTime())
+    .filter(
+      (c) =>
+        !c.isPaid &&
+        atManilaEndOfDay(c.dueDate) <= atManilaEndOfDay(profile.nextPayday)
+    )
     .reduce((sum, c) => sum + c.amountCentavos, 0);
 
-  // Debt minimums due <= H
   const debtMinCentavos = profile.debts
-    .filter((d) => new Date(d.dueDate + 'T23:59:59+08:00').getTime() <= nextPaydayDate.getTime())
+    .filter((d) => atManilaEndOfDay(d.dueDate) <= atManilaEndOfDay(profile.nextPayday))
     .reduce((sum, d) => sum + d.minimumDueCentavos, 0);
 
-  // E = essential daily run-rate × days to H
-  const essentialsCentavos = profile.essentialDailyRunRateCentavos * horizonDays;
+  const iouPayablesCentavos = profile.ious
+    .filter(
+      (iou) =>
+        iou.direction === 'i_owe' &&
+        iou.status !== 'settled' &&
+        iou.amountCentavos > 0 &&
+        !!iou.dueDate &&
+        atManilaEndOfDay(iou.dueDate) <= atManilaEndOfDay(profile.nextPayday)
+    )
+    .reduce((sum, iou) => sum + iou.amountCentavos, 0);
 
-  // C = cushion days × essential daily run-rate
+  const essentialsCentavos = profile.essentialDailyRunRateCentavos * horizonDays;
   const cushionCentavos = profile.cushionDays * profile.essentialDailyRunRateCentavos;
 
-  // Canonical formula: STS_total = max(0, A - R - B - Debt - E - C)
-  const deductions = reservedCentavos + billsCentavos + debtMinCentavos + essentialsCentavos + cushionCentavos;
+  const deductions =
+    reservedCentavos +
+    billsCentavos +
+    debtMinCentavos +
+    iouPayablesCentavos +
+    essentialsCentavos +
+    cushionCentavos;
+
   const stsTotalCentavos = Math.max(0, accessibleCentavos - deductions);
   const stsDailyCentavos = Math.round(stsTotalCentavos / horizonDays);
 
-  let status: 'Comfortable' | 'Balanced' | 'Tight' | 'Critical' = 'Tight';
+  let status: SafeToSpendResult['status'];
   if (stsDailyCentavos > profile.essentialDailyRunRateCentavos * 1.5) {
     status = 'Comfortable';
   } else if (stsDailyCentavos >= profile.essentialDailyRunRateCentavos) {
@@ -70,6 +85,7 @@ export function calculateSafeToSpend(profile: PersonaProfile, currentDate: Date)
     reservedCentavos,
     billsCentavos,
     debtMinCentavos,
+    iouPayablesCentavos,
     essentialsCentavos,
     cushionCentavos,
     stsTotalCentavos,
