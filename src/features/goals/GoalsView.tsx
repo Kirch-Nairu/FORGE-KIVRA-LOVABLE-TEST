@@ -1,15 +1,22 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useKivra } from '../../state/kivraStore';
 import { evaluateGoalWhatIf } from '../../domain/finance/scenarios';
 import { prototypeClock } from '../../domain/clock';
 import { SectionHeader } from '../../components/kivra/SectionHeader';
 import { MoneyFigure } from '../../components/kivra/MoneyFigure';
-import { Target, HeartHandshake, ArrowUpCircle, Trash2, ArrowRight } from 'lucide-react';
+import { ArrowUpCircle, Trash2 } from 'lucide-react';
+import { privacyMoneyText } from '../../lib/privacy';
 
 export const GoalsView: React.FC = () => {
-  const { currentPersona, updateGoalContribution, updateWantStatus, promoteWantToGoal } = useKivra();
+  const { currentPersona, updateWantStatus, promoteWantToGoal, isPrivacyMasked } = useKivra();
   const [selectedGoalId, setSelectedGoalId] = useState<string>(currentPersona.goals[0]?.id || '');
   const [extraContributionPesos, setExtraContributionPesos] = useState<number>(1000);
+
+  useEffect(() => {
+    if (!currentPersona.goals.some((g) => g.id === selectedGoalId)) {
+      setSelectedGoalId(currentPersona.goals[0]?.id || '');
+    }
+  }, [currentPersona.id, currentPersona.goals, selectedGoalId]);
 
   const selectedGoal = currentPersona.goals.find((g) => g.id === selectedGoalId) || currentPersona.goals[0];
 
@@ -47,7 +54,7 @@ export const GoalsView: React.FC = () => {
                 <div>
                   <h3 className="text-sm font-semibold text-ink">{g.title}</h3>
                   <span className="text-xs text-ink-muted">
-                    Target: {g.targetDate} · ₱{(g.monthlyContributionCentavos / 100).toFixed(0)}/mo
+                    Target: {g.targetDate} · {privacyMoneyText(g.monthlyContributionCentavos, isPrivacyMasked)}/mo
                   </span>
                 </div>
                 <span className="text-xs font-bold text-pine tabular-nums">{progress}%</span>
@@ -89,6 +96,12 @@ export const GoalsView: React.FC = () => {
           </div>
 
           <div className="p-3 bg-surface-alt border border-ink-hairline rounded-lg text-xs space-y-2">
+            <div className="flex justify-between">
+              <span className="text-ink-muted">Monthly plan:</span>
+              <span className="font-semibold text-ink tabular-nums">
+                {privacyMoneyText(whatIfResult.currentMonthlyPesos * 100, isPrivacyMasked)} → {privacyMoneyText(whatIfResult.newMonthlyPesos * 100, isPrivacyMasked)}
+              </span>
+            </div>
             <div className="flex justify-between">
               <span className="text-ink-muted">Base Pace ({whatIfResult.monthsToTargetCurrent} months):</span>
               <span className="font-semibold text-ink">{whatIfResult.completionDateCurrent}</span>
