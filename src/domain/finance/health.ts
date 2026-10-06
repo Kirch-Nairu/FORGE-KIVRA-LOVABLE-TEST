@@ -7,7 +7,7 @@ export function evaluateFinancialHealth(profile: PersonaProfile, currentDate: Da
   const totalDebtMinCentavos = profile.debts.reduce((s, d) => s + d.minimumDueCentavos, 0);
   const totalAssetsCentavos = profile.accounts.reduce((s, a) => s + a.balanceCentavos, 0);
   const protectedSavingsCentavos = profile.accounts
-    .filter((a) => !a.isSpendable || a.type === 'savings' || a.type === 'digital_bank')
+    .filter((a) => !a.isSpendable)
     .reduce((s, a) => s + a.balanceCentavos, 0);
 
   // 1. Cash stability & Runway
@@ -111,11 +111,13 @@ export function evaluateFinancialHealth(profile: PersonaProfile, currentDate: Da
       level: spendingControlLevel,
       explanation:
         lateNightOrders > 0
-          ? `${lateNightOrders} unbudgeted late-evening orders identified in recent history.`
+          ? `${lateNightOrders} tracked late-evening discretionary entries identified in recent history.`
           : 'Discretionary spending remains within regular daytime cadence.',
       factors: [
         `${profile.transactions.filter((t) => t.type === 'expense').length} tracked expense entries`,
-        'Observation pace stable',
+        lateNightOrders > 0
+          ? `${lateNightOrders} of those entries occurred after 9:00 PM`
+          : 'No late-evening discretionary entries are currently present',
       ],
     },
     {
