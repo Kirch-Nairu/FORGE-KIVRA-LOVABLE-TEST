@@ -189,6 +189,20 @@ export const KivraProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     let actionMsg = '';
 
     setProfile((prev) => {
+      const targetIouForDirection = mut.type === 'iou_settlement'
+        ? prev.ious.find((i) => i.id === mut.iouId)
+        : undefined;
+      const cashFlowDirection: Transaction['cashFlowDirection'] =
+        mut.type === 'income'
+          ? 'in'
+          : mut.type === 'transfer'
+          ? 'neutral'
+          : mut.type === 'iou_settlement'
+          ? targetIouForDirection?.direction === 'owed_to_me'
+            ? 'in'
+            : 'out'
+          : 'out';
+
       const newTxn: Transaction = {
         id: newLocalId('txn'),
         timestamp: prototypeClock.now.toISOString(),
@@ -200,6 +214,7 @@ export const KivraProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         merchant: mut.merchant,
         note: mut.note,
         personId: mut.iouId,
+        cashFlowDirection,
       };
 
       let updatedAccounts = [...prev.accounts];
