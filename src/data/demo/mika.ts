@@ -43,21 +43,31 @@ export const mikaProfile: PersonaProfile = {
     { id: 'want_jacket', title: 'Uniqlo Parka', priceCentavos: 249000, addedDate: '2026-09-20', coolingOffDays: 3, status: 'cooling_off', notes: 'Rainy season commute' },
   ],
   transactions: [
-    { id: 'txn_1', timestamp: '2026-10-07T08:15:00+08:00', type: 'expense', amountCentavos: 14000, accountId: 'acc_gcash', category: 'Food & Drink', merchant: 'Pickup Coffee', note: 'Iced Kape Kastila', contextTag: 'coffee-habit' },
-    { id: 'txn_2', timestamp: '2026-10-06T19:45:00+08:00', type: 'expense', amountCentavos: 38000, accountId: 'acc_gcash', category: 'Food & Drink', merchant: 'GrabFood', note: 'Dinner takeout', contextTag: 'friday-delivery' },
-    { id: 'txn_3', timestamp: '2026-10-06T08:20:00+08:00', type: 'expense', amountCentavos: 12000, accountId: 'acc_gcash', category: 'Food & Drink', merchant: 'Pickup Coffee', note: 'Americano', contextTag: 'coffee-habit' },
-    { id: 'txn_4', timestamp: '2026-10-05T08:30:00+08:00', type: 'expense', amountCentavos: 13500, accountId: 'acc_gcash', category: 'Food & Drink', merchant: 'Pickup Coffee', note: 'Latte', contextTag: 'coffee-habit' },
-    { id: 'txn_5', timestamp: '2026-10-04T22:15:00+08:00', type: 'expense', amountCentavos: 42000, accountId: 'acc_payroll', category: 'Shopping', merchant: 'Shopee', note: 'Phone accessories', contextTag: 'late-night' },
-    { id: 'txn_6', timestamp: '2026-10-03T18:00:00+08:00', type: 'transfer', amountCentavos: 200000, accountId: 'acc_payroll', toAccountId: 'acc_gcash', note: 'Top up GCash for transit and food' },
-    { id: 'txn_7', timestamp: '2026-10-02T20:30:00+08:00', type: 'expense', amountCentavos: 52000, accountId: 'acc_gcash', category: 'Food & Drink', merchant: 'Foodpanda', note: 'Friday night pizza', contextTag: 'friday-delivery' },
-    { id: 'txn_8', timestamp: '2026-09-30T10:00:00+08:00', type: 'income', amountCentavos: 2250000, accountId: 'acc_payroll', category: 'Salary', note: 'End of month payroll' },
-    { id: 'txn_9', timestamp: '2026-10-01T14:00:00+08:00', type: 'reconciliation', amountCentavos: 140000, accountId: 'acc_cash', note: 'Cash wallet audit adjustment (₱1,400 drift)' },
+    // Today (Oct 7)
+    { id: 'txn_c1', timestamp: '2026-10-07T08:15:00+08:00', type: 'expense', amountCentavos: 14000, accountId: 'acc_gcash', category: 'Food & Drink', merchant: 'Pickup Coffee', note: 'Iced Kape Kastila', contextTag: 'coffee-habit' },
+    // Yesterday (Oct 6)
+    { id: 'txn_c2', timestamp: '2026-10-06T08:20:00+08:00', type: 'expense', amountCentavos: 12000, accountId: 'acc_gcash', category: 'Food & Drink', merchant: 'Pickup Coffee', note: 'Americano', contextTag: 'coffee-habit' },
+    { id: 'txn_f1', timestamp: '2026-10-06T19:45:00+08:00', type: 'expense', amountCentavos: 38000, accountId: 'acc_gcash', category: 'Food & Drink', merchant: 'GrabFood', note: 'Dinner takeout', contextTag: 'friday-delivery' },
+    // Mon (Oct 5)
+    { id: 'txn_c3', timestamp: '2026-10-05T08:30:00+08:00', type: 'expense', amountCentavos: 13500, accountId: 'acc_gcash', category: 'Food & Drink', merchant: 'Pickup Coffee', note: 'Latte', contextTag: 'coffee-habit' },
+    // Sun (Oct 4)
+    { id: 'txn_c4', timestamp: '2026-10-04T10:00:00+08:00', type: 'expense', amountCentavos: 11000, accountId: 'acc_gcash', category: 'Food & Drink', merchant: 'Pickup Coffee', note: 'Cold brew', contextTag: 'coffee-habit' },
+    { id: 'txn_ln1', timestamp: '2026-10-04T22:15:00+08:00', type: 'expense', amountCentavos: 42000, accountId: 'acc_payroll', category: 'Shopping', merchant: 'Shopee', note: 'Phone accessories', contextTag: 'late-night' },
+    // Sat (Oct 3)
+    { id: 'txn_c5', timestamp: '2026-10-03T09:15:00+08:00', type: 'expense', amountCentavos: 9500, accountId: 'acc_gcash', category: 'Food & Drink', merchant: 'Pickup Coffee', note: 'Flat white', contextTag: 'coffee-habit' },
+    { id: 'txn_tr1', timestamp: '2026-10-03T18:00:00+08:00', type: 'transfer', amountCentavos: 200000, accountId: 'acc_payroll', toAccountId: 'acc_gcash', note: 'Top up GCash for transit and food' },
+    // Fri (Oct 2 - Friday delivery + coffee)
+    { id: 'txn_c6', timestamp: '2026-10-02T08:45:00+08:00', type: 'expense', amountCentavos: 12000, accountId: 'acc_gcash', category: 'Food & Drink', merchant: 'Pickup Coffee', note: 'Iced Americano', contextTag: 'coffee-habit' },
+    { id: 'txn_f2', timestamp: '2026-10-02T20:30:00+08:00', type: 'expense', amountCentavos: 52000, accountId: 'acc_gcash', category: 'Food & Drink', merchant: 'Foodpanda', note: 'Friday night pizza', contextTag: 'friday-delivery' },
+    // Thu (Oct 1 - post payday)
+    { id: 'txn_pp1', timestamp: '2026-10-01T14:30:00+08:00', type: 'expense', amountCentavos: 185000, accountId: 'acc_payroll', category: 'Shopping', merchant: 'Uniqlo', note: 'Work shirts post-payday', contextTag: 'post-payday' },
+    { id: 'txn_rc1', timestamp: '2026-10-01T16:00:00+08:00', type: 'reconciliation', amountCentavos: 140000, accountId: 'acc_cash', note: 'Cash wallet audit adjustment (₱1,400 drift)' },
+    // Wed (Sep 30 - Payday deposit + post payday spend)
+    { id: 'txn_inc1', timestamp: '2026-09-30T10:00:00+08:00', type: 'income', amountCentavos: 2250000, accountId: 'acc_payroll', category: 'Salary', note: 'End of month payroll' },
+    { id: 'txn_pp2', timestamp: '2026-09-30T19:00:00+08:00', type: 'expense', amountCentavos: 235000, accountId: 'acc_payroll', category: 'Dining', merchant: 'Wildflour Cafe', note: 'Payday dinner celebration', contextTag: 'post-payday' },
+    // Earlier Fridays for Friday delivery pattern
+    { id: 'txn_f3', timestamp: '2026-09-25T20:00:00+08:00', type: 'expense', amountCentavos: 44000, accountId: 'acc_gcash', category: 'Food & Drink', merchant: 'GrabFood', note: 'Friday dinner delivery', contextTag: 'friday-delivery' },
+    { id: 'txn_f4', timestamp: '2026-09-18T19:30:00+08:00', type: 'expense', amountCentavos: 49000, accountId: 'acc_gcash', category: 'Food & Drink', merchant: 'GrabFood', note: 'Friday Japanese takeout', contextTag: 'friday-delivery' },
   ],
-  insights: [
-    { id: 'ins_coffee', title: 'Coffee habit pace', metric: '6× this week · ₱720', description: 'Coffee runs averaged ₱120 per transaction, primarily during morning commute.', patternType: 'frequency', transactions: ['txn_1', 'txn_3', 'txn_4'], suggestedAction: 'Setting a 4-day weekly cap preserves ₱960 monthly.' },
-    { id: 'ins_delivery', title: 'Friday dinner delivery pattern', metric: '4 of last 5 Fridays', description: 'Food delivery orders peak on Friday evenings after long work shifts.', patternType: 'timing', transactions: ['txn_2', 'txn_7'], suggestedAction: 'Pre-planning simple Friday dinners saves ~₱1,800/mo.' },
-    { id: 'ins_payday_spike', title: 'Post-payday 48h surge', metric: '2.3× baseline spend', description: 'Discretionary outlays spike sharply within 48 hours following the 15th and 30th payrolls.', patternType: 'timing', transactions: ['txn_5'], suggestedAction: 'Automate transfer to savings on payday morning.' },
-    { id: 'ins_reconciliation', title: 'Cash balance drift', metric: '₱1,400 unreconciled', description: 'Physical cash balance showed a ₱1,400 gap during last physical wallet reconciliation.', patternType: 'reconciliation', transactions: ['txn_9'], suggestedAction: 'Log small jeepney and street vendor cash expenses immediately.' },
-    { id: 'ins_overdue_iou', title: 'Overdue IOU from Bea', metric: '₱850 · 2 days overdue', description: 'Bea team lunch settlement was expected by Oct 5.', patternType: 'anomaly', transactions: [], suggestedAction: 'Send friendly reminder via chat.' },
-  ],
+  insights: [],
 };

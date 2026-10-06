@@ -1,12 +1,16 @@
 import React from 'react';
 import { SafeToSpendResult } from '../../domain/finance/safeToSpend';
 import { MoneyFigure } from './MoneyFigure';
+import { useKivra } from '../../state/kivraStore';
 
 interface WaterfallProps {
   math: SafeToSpendResult;
 }
 
 export const Waterfall: React.FC<WaterfallProps> = ({ math }) => {
+  const { currentPersona, isPrivacyMasked } = useKivra();
+  const dailyRunRatePesos = Math.round(currentPersona.essentialDailyRunRateCentavos / 100);
+
   return (
     <div className="space-y-3 font-sans text-sm">
       <div className="flex justify-between items-center py-1">
@@ -28,11 +32,13 @@ export const Waterfall: React.FC<WaterfallProps> = ({ math }) => {
           <MoneyFigure centavos={-math.debtMinCentavos} size="sm" semantic="neutral" showSign />
         </div>
         <div className="flex justify-between items-center">
-          <span>− Essentials ({math.horizonDays} days × ₱230/day)</span>
+          <span>
+            − Essentials ({math.horizonDays} days × {isPrivacyMasked ? '₱••••••' : `₱${dailyRunRatePesos}`}/day)
+          </span>
           <MoneyFigure centavos={-math.essentialsCentavos} size="sm" semantic="neutral" showSign />
         </div>
         <div className="flex justify-between items-center">
-          <span>− Safety Cushion</span>
+          <span>− Safety Cushion ({currentPersona.cushionDays}d)</span>
           <MoneyFigure centavos={-math.cushionCentavos} size="sm" semantic="neutral" showSign />
         </div>
       </div>

@@ -19,12 +19,6 @@ export const MoneyFigure: React.FC<MoneyFigureProps> = ({
 }) => {
   const { isPrivacyMasked } = useKivra();
 
-  if (isPrivacyMasked) {
-    return <span className={`tabular-nums font-medium tracking-tight select-none ${className}`}>₱••••••</span>;
-  }
-
-  const text = formatPesos(centavos, { showDecimals: false, sign: showSign });
-
   const sizeClass = {
     hero: 'text-4xl md:text-5xl font-bold tracking-tight',
     lg: 'text-2xl font-semibold',
@@ -32,8 +26,6 @@ export const MoneyFigure: React.FC<MoneyFigureProps> = ({
     sm: 'text-sm font-normal',
   }[size];
 
-  // Correction B: Ordinary expenses remain neutral / Ink.
-  // Brick is reserved for risk / shortfall / overdue / error.
   const colorClass = {
     neutral: 'text-ink',
     pine: 'text-pine font-semibold',
@@ -41,5 +33,25 @@ export const MoneyFigure: React.FC<MoneyFigureProps> = ({
     muted: 'text-ink-muted',
   }[semantic];
 
-  return <span className={`tabular-nums ${sizeClass} ${colorClass} ${className}`}>{text}</span>;
+  if (isPrivacyMasked) {
+    return (
+      <span
+        className={`tabular-nums font-medium tracking-tight select-none ${sizeClass} ${colorClass} ${className}`}
+        aria-label="Amount hidden for privacy"
+      >
+        ₱••••••
+      </span>
+    );
+  }
+
+  const text = formatPesos(centavos, { showDecimals: false, sign: showSign });
+
+  return (
+    <span
+      className={`tabular-nums ${sizeClass} ${colorClass} ${className}`}
+      aria-label={text}
+    >
+      {text}
+    </span>
+  );
 };
