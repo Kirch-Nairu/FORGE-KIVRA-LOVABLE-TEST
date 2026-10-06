@@ -192,7 +192,7 @@ export const AppShell: React.FC = () => {
 
             {/* Main Content Body */}
             <main className="flex-1">
-              {currentRoute === '/today' && <TodayView onNavigate={(t) => navigate(t)} />}
+              {currentRoute === '/today' && <TodayView onNavigate={(t) => navigate(t)} onQuickAdd={() => setShowQuickAdd(true)} />}
               {currentRoute === '/plan' && <PlanView />}
               {currentRoute === '/money' && <MoneyView />}
               {currentRoute === '/goals' && <GoalsView />}
