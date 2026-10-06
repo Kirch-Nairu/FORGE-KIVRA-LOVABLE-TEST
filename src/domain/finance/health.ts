@@ -5,7 +5,6 @@ export function evaluateFinancialHealth(profile: PersonaProfile, currentDate: Da
   const sts = calculateSafeToSpend(profile, currentDate);
   const totalDebtCentavos = profile.debts.reduce((s, d) => s + d.remainingBalanceCentavos, 0);
   const totalDebtMinCentavos = profile.debts.reduce((s, d) => s + d.minimumDueCentavos, 0);
-  const totalAssetsCentavos = profile.accounts.reduce((s, a) => s + a.balanceCentavos, 0);
   const protectedSavingsCentavos = profile.accounts
     .filter((a) => !a.isSpendable)
     .reduce((s, a) => s + a.balanceCentavos, 0);
@@ -49,8 +48,14 @@ export function evaluateFinancialHealth(profile: PersonaProfile, currentDate: Da
 
   // 4. Spending Control
   const lateNightOrders = profile.transactions.filter((t) => {
-    const h = new Date(t.timestamp).getHours();
-    return t.type === 'expense' && (h >= 21 || h < 4);
+    const hour = Number(
+      new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Manila',
+        hour: '2-digit',
+        hour12: false,
+      }).format(new Date(t.timestamp))
+    );
+    return t.type === 'expense' && (hour >= 21 || hour < 4);
   }).length;
   const spendingControlLevel: 'Robust' | 'Adequate' | 'Tight' =
     lateNightOrders > 3 ? 'Tight' : lateNightOrders > 0 ? 'Adequate' : 'Robust';
@@ -72,11 +77,11 @@ export function evaluateFinancialHealth(profile: PersonaProfile, currentDate: Da
   }
 
   // 6. Obligation Coverage
-  const billsAndDebtCentavos = sts.billsCentavos + sts.debtMinCentavos;
+  const fixedObligationsCentavos = sts.billsCentavos + sts.debtMinCentavos + sts.iouPayablesCentavos;
   const coverageLevel: 'Robust' | 'Adequate' | 'Tight' | 'Vulnerable' =
-    sts.accessibleCentavos >= billsAndDebtCentavos + sts.essentialsCentavos
+    sts.accessibleCentavos >= fixedObligationsCentavos + sts.essentialsCentavos
       ? 'Robust'
-      : sts.accessibleCentavos >= billsAndDebtCentavos
+      : sts.accessibleCentavos >= fixedObligationsCentavos
       ? 'Adequate'
       : 'Vulnerable';
 
@@ -85,7 +90,7 @@ export function evaluateFinancialHealth(profile: PersonaProfile, currentDate: Da
       id: 'cash_stability',
       name: 'Cash Stability & Runway',
       level: cashStabilityLevel,
-      explanation: `${sts.horizonDays} days until next guaranteed inflow; daily safe runway is ₱${(sts.stsDailyCentavos / 100).toFixed(0)}.`,
+      explanation: `${sts.horizonDays} days until next confirmed inflow; daily safe runway is ₱${(sts.stsDailyCentavos / 100).toFixed(0)}.`,
       factors: cashFactors,
     },
     {
@@ -101,7 +106,7 @@ export function evaluateFinancialHealth(profile: PersonaProfile, currentDate: Da
       level: emergencyLevel,
       explanation: `Protected savings hold approximately ${emergencyMonths} months of baseline survival costs.`,
       factors: [
-        `₱${(protectedSavingsCentavos / 100).toLocaleString('en-PH')} in protected or digital bank accounts`,
+        `₱${(protectedSavingsCentavos / 100).toLocaleString('en-PH')} in protected / non-spendable accounts`,
         `Baseline essential run-rate: ₱${(profile.essentialDailyRunRateCentavos / 100).toFixed(0)}/day`,
       ],
     },
@@ -133,10 +138,10 @@ export function evaluateFinancialHealth(profile: PersonaProfile, currentDate: Da
       level: coverageLevel,
       explanation:
         coverageLevel === 'Robust'
-          ? 'Accessible cash covers 100% of unpaid bills, debt minimums, and baseline essentials until payday.'
+          ? 'Accessible cash covers unpaid bills, debt minimums, due IOU payables, and baseline essentials until payday.'
           : 'Accessible cash covers fixed commitments but leaves narrow discretionary cushion.',
       factors: [
-        `Unpaid bills & minimums due <= payday: ₱${(billsAndDebtCentavos / 100).toLocaleString('en-PH')}`,
+        `Fixed obligations due by payday: ₱${(fixedObligationsCentavos / 100).toLocaleString('en-PH')}`,
         `Accessible spendable funds: ₱${(sts.accessibleCentavos / 100).toLocaleString('en-PH')}`,
       ],
     },
