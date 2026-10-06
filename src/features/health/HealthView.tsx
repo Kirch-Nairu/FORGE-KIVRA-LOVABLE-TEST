@@ -1,9 +1,10 @@
 import React from 'react';
 import { useKivra } from '../../state/kivraStore';
 import { SectionHeader } from '../../components/kivra/SectionHeader';
+import { maskCurrencyText } from '../../lib/privacy';
 
 export const HealthView: React.FC = () => {
-  const { healthDimensions } = useKivra();
+  const { healthDimensions, isPrivacyMasked } = useKivra();
 
   return (
     <div className="space-y-6 pb-20">
@@ -29,11 +30,11 @@ export const HealthView: React.FC = () => {
                 {dim.level}
               </span>
             </div>
-            <p className="text-xs text-ink-muted">{dim.explanation}</p>
+            <p className="text-xs text-ink-muted">{maskCurrencyText(dim.explanation, isPrivacyMasked)}</p>
             <div className="pt-2 border-t border-ink-hairline flex flex-wrap gap-1">
               {dim.factors.map((f, idx) => (
                 <span key={idx} className="text-[10px] bg-surface-alt text-ink-muted px-2 py-0.5 rounded">
-                  {f}
+                  {maskCurrencyText(f, isPrivacyMasked)}
                 </span>
               ))}
             </div>
