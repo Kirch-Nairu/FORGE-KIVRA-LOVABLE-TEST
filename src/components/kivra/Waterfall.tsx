@@ -31,6 +31,12 @@ export const Waterfall: React.FC<WaterfallProps> = ({ math }) => {
           <span>− Debt Minimums due</span>
           <MoneyFigure centavos={-math.debtMinCentavos} size="sm" semantic="neutral" showSign />
         </div>
+        {math.iouPayablesCentavos > 0 && (
+          <div className="flex justify-between items-center">
+            <span>− Promised IOU payments due</span>
+            <MoneyFigure centavos={-math.iouPayablesCentavos} size="sm" semantic="neutral" showSign />
+          </div>
+        )}
         <div className="flex justify-between items-center">
           <span>
             − Essentials ({math.horizonDays} days × {isPrivacyMasked ? '₱••••••' : `₱${dailyRunRatePesos}`}/day)
