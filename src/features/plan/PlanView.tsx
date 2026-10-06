@@ -6,7 +6,7 @@ import { prototypeClock } from '../../domain/clock';
 import { CashFlowChart } from '../../components/kivra/CashFlowChart';
 import { SectionHeader } from '../../components/kivra/SectionHeader';
 import { MoneyFigure } from '../../components/kivra/MoneyFigure';
-import { TrendingUp, AlertTriangle, ArrowRight } from 'lucide-react';
+import { maskCurrencyText, privacyMoneyText } from '../../lib/privacy';
 
 export const PlanView: React.FC = () => {
   const { currentPersona, isPrivacyMasked } = useKivra();
@@ -71,7 +71,14 @@ export const PlanView: React.FC = () => {
               {scenarioResult.dailyDeltaPesos >= 0 ? `+₱${scenarioResult.dailyDeltaPesos}` : `-₱${Math.abs(scenarioResult.dailyDeltaPesos)}`}/day
             </span>
           </div>
-          <p className="text-ink-muted">{scenarioResult.summary}</p>
+          <p className="text-ink-muted">{maskCurrencyText(scenarioResult.summary, isPrivacyMasked)}</p>
+          {scenarioResult.effects.length > 0 && (
+            <ul className="space-y-1 text-[11px] text-ink-muted list-disc pl-4">
+              {scenarioResult.effects.map((effect) => (
+                <li key={effect}>{maskCurrencyText(effect, isPrivacyMasked)}</li>
+              ))}
+            </ul>
+          )}
           <div className="pt-2 border-t border-ink-hairline flex justify-between text-ink text-[11px]">
             <span>Simulated STS Daily:</span>
             <span className="font-bold tabular-nums">
@@ -84,8 +91,8 @@ export const PlanView: React.FC = () => {
           {/* Scenario 1 */}
           <label className="flex items-center justify-between p-3 bg-surface-alt rounded-lg border border-ink-hairline cursor-pointer hover:border-pine/50 transition-colors">
             <div>
-              <span className="text-sm font-medium text-ink block">Cap coffee frequency to 3× weekly</span>
-              <span className="text-xs text-pine font-medium">+₱960/mo discretionary preservation</span>
+              <span className="text-sm font-medium text-ink block">{currentPersona.id === 'mika' ? 'Reduce coffee habit spending' : 'Reduce one discretionary habit'}</span>
+              <span className="text-xs text-pine font-medium">Preserve {privacyMoneyText(96000, isPrivacyMasked)}/month outside essential costs</span>
             </div>
             <input
               type="checkbox"
@@ -98,7 +105,7 @@ export const PlanView: React.FC = () => {
           {/* Scenario 2 */}
           <label className="flex items-center justify-between p-3 bg-surface-alt rounded-lg border border-ink-hairline cursor-pointer hover:border-pine/50 transition-colors">
             <div>
-              <span className="text-sm font-medium text-ink block">Model 4-day client invoice delay</span>
+              <span className="text-sm font-medium text-ink block">{currentPersona.id === 'dan' ? 'Model 4-day client invoice delay' : 'Model 4-day delay to next confirmed income'}</span>
               <span className="text-xs text-amber font-medium">Extends runway horizon to next payday</span>
             </div>
             <input
@@ -112,8 +119,8 @@ export const PlanView: React.FC = () => {
           {/* Scenario 3 */}
           <label className="flex items-center justify-between p-3 bg-surface-alt rounded-lg border border-ink-hairline cursor-pointer hover:border-pine/50 transition-colors">
             <div>
-              <span className="text-sm font-medium text-ink block">Receive unexpected ₱5,000 gig payout</span>
-              <span className="text-xs text-pine font-medium">+₱5,000 immediate cash inflow</span>
+              <span className="text-sm font-medium text-ink block">Receive extra confirmed income</span>
+              <span className="text-xs text-pine font-medium">Add {privacyMoneyText(500000, isPrivacyMasked)} to spendable cash</span>
             </div>
             <input
               type="checkbox"
@@ -127,8 +134,8 @@ export const PlanView: React.FC = () => {
           {currentPersona.debts.length > 0 && (
             <label className="flex items-center justify-between p-3 bg-surface-alt rounded-lg border border-ink-hairline cursor-pointer hover:border-pine/50 transition-colors">
               <div>
-                <span className="text-sm font-medium text-ink block">Allocate extra ₱1,000 principal to CC debt</span>
-                <span className="text-xs text-slate font-medium">Accelerates debt payoff & stops revolving interest</span>
+                <span className="text-sm font-medium text-ink block">Pay extra {privacyMoneyText(100000, isPrivacyMasked)} toward {currentPersona.debts[0]?.name || 'debt'}</span>
+                <span className="text-xs text-slate font-medium">Reduces balance and satisfies the current minimum first in this prototype model</span>
               </div>
               <input
                 type="checkbox"
@@ -142,7 +149,7 @@ export const PlanView: React.FC = () => {
           {/* Scenario 5 */}
           <label className="flex items-center justify-between p-3 bg-surface-alt rounded-lg border border-ink-hairline cursor-pointer hover:border-pine/50 transition-colors">
             <div>
-              <span className="text-sm font-medium text-ink block">Execute planned ₱2,500 purchase right now</span>
+              <span className="text-sm font-medium text-ink block">Execute planned {privacyMoneyText(250000, isPrivacyMasked)} purchase right now</span>
               <span className="text-xs text-brick font-medium">Immediately deducts from spendable cash</span>
             </div>
             <input
