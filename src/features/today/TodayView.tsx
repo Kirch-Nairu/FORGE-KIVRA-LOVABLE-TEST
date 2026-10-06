@@ -8,9 +8,10 @@ import { Waterfall } from '../../components/kivra/Waterfall';
 import { evaluateAffordability } from '../../domain/finance/affordability';
 import { deriveAllPatterns } from '../../domain/finance/patterns';
 import { prototypeClock } from '../../domain/clock';
+import { maskCurrencyText } from '../../lib/privacy';
 import { ArrowUpRight, ArrowDownLeft, ShieldCheck, HelpCircle, Calculator, Target, Clock, AlertTriangle } from 'lucide-react';
 
-export const TodayView: React.FC<{ onNavigate: (tab: string) => void }> = ({ onNavigate }) => {
+export const TodayView: React.FC<{ onNavigate: (tab: string) => void; onQuickAdd: () => void }> = ({ onNavigate, onQuickAdd }) => {
   const { currentPersona, safeToSpend, isPrivacyMasked } = useKivra();
   const [showMath, setShowMath] = useState(false);
   const [showAfford, setShowAfford] = useState(false);
@@ -194,7 +195,7 @@ export const TodayView: React.FC<{ onNavigate: (tab: string) => void }> = ({ onN
           </div>
         </div>
         <button
-          onClick={() => onNavigate('quick-add')}
+          onClick={onQuickAdd}
           className="text-xs font-semibold px-2.5 py-1 bg-surface border border-ink-hairline rounded text-ink hover:border-pine"
         >
           Quick Add
@@ -263,9 +264,9 @@ export const TodayView: React.FC<{ onNavigate: (tab: string) => void }> = ({ onN
         <SectionHeader title="Behavioral Insight" actionText="Patterns" onAction={() => onNavigate('patterns')} />
         {topPattern ? (
           <div className="p-3 bg-surface-alt rounded-lg border border-ink-hairline">
-            <span className="text-xs font-semibold text-pine uppercase tracking-wider">{topPattern.metric}</span>
+            <span className="text-xs font-semibold text-pine uppercase tracking-wider">{maskCurrencyText(topPattern.metric, isPrivacyMasked)}</span>
             <h4 className="text-sm font-bold text-ink mt-0.5">{topPattern.title}</h4>
-            <p className="text-xs text-ink-muted mt-1">{topPattern.description}</p>
+            <p className="text-xs text-ink-muted mt-1">{maskCurrencyText(topPattern.description, isPrivacyMasked)}</p>
           </div>
         ) : (
           <p className="text-xs text-ink-muted py-2">Not enough entries yet to detect behavioral clusters.</p>
