@@ -43,6 +43,7 @@ export interface Transaction {
   note?: string;
   contextTag?: string;
   personId?: string;
+  cashFlowDirection?: 'in' | 'out' | 'neutral';
 }
 
 export interface Commitment {
