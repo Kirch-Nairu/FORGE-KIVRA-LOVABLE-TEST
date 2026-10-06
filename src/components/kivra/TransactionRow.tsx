@@ -7,37 +7,47 @@ interface TransactionRowProps {
 }
 
 export const TransactionRow: React.FC<TransactionRowProps> = ({ txn }) => {
-  // Correction B: Ordinary expenses remain neutral / Ink.
-  // Income uses Pine. Transfers remain neutral.
-  const isIncome = txn.type === 'income' || txn.type === 'iou_settlement';
-  const isTransfer = txn.type === 'transfer';
-  const isRecon = txn.type === 'reconciliation';
+  const flow =
+    txn.cashFlowDirection ??
+    (txn.type === 'income'
+      ? 'in'
+      : txn.type === 'transfer'
+      ? 'neutral'
+      : 'out');
 
-  const typeLabel = isTransfer
-    ? 'Transfer'
-    : isRecon
-    ? 'Reconciliation'
-    : txn.category || (isIncome ? 'Income' : 'Expense');
+  const typeLabel =
+    txn.type === 'transfer'
+      ? 'Transfer'
+      : txn.type === 'reconciliation'
+      ? 'Reconciliation'
+      : txn.type === 'debt_payment'
+      ? 'Debt payment'
+      : txn.type === 'iou_settlement'
+      ? 'IOU settlement'
+      : txn.category || (flow === 'in' ? 'Income' : 'Expense');
 
   const formattedDate = new Date(txn.timestamp).toLocaleDateString('en-PH', {
     month: 'short',
     day: 'numeric',
   });
 
+  const displayCentavos =
+    flow === 'in' ? txn.amountCentavos : flow === 'out' ? -txn.amountCentavos : txn.amountCentavos;
+
   return (
     <div className="flex items-center justify-between py-3 border-b border-ink-hairline last:border-0 hover:bg-surface-alt/40 transition-colors px-1">
-      <div className="flex flex-col">
-        <span className="text-sm font-medium text-ink">{txn.merchant || txn.note || typeLabel}</span>
+      <div className="flex flex-col min-w-0 pr-3">
+        <span className="text-sm font-medium text-ink truncate">{txn.merchant || txn.note || typeLabel}</span>
         <span className="text-xs text-ink-muted">
           {formattedDate} · {typeLabel} {txn.contextTag ? `· #${txn.contextTag}` : ''}
         </span>
       </div>
-      <div className="text-right">
+      <div className="text-right shrink-0">
         <MoneyFigure
-          centavos={isIncome ? txn.amountCentavos : -txn.amountCentavos}
+          centavos={displayCentavos}
           size="sm"
-          semantic={isIncome ? 'pine' : 'neutral'}
-          showSign={true}
+          semantic={flow === 'in' ? 'pine' : 'neutral'}
+          showSign={flow !== 'neutral'}
         />
       </div>
     </div>
