@@ -17,8 +17,11 @@ export function deriveCoffeePattern(transactions: Transaction[], now: Date): Ins
 
   const count = coffeeTxns.length;
   const totalCentavos = coffeeTxns.reduce((sum, t) => sum + t.amountCentavos, 0);
-  const avgPesos = Math.round(totalCentavos / count / 100);
+  const averageCentavos = Math.round(totalCentavos / count);
+  const avgPesos = Math.round(averageCentavos / 100);
   const monthlyImpactPesos = Math.round((totalCentavos * 4.3) / 100);
+  const weeklyAvoidedRuns = Math.max(0, count - 4);
+  const monthlySavingPesos = Math.round((weeklyAvoidedRuns * averageCentavos * 4.3) / 100);
 
   return {
     id: 'pattern_coffee',
@@ -27,7 +30,10 @@ export function deriveCoffeePattern(transactions: Transaction[], now: Date): Ins
     description: `Coffee runs averaged ₱${avgPesos} per transaction across morning commutes. Projected monthly spend is ~₱${monthlyImpactPesos.toLocaleString('en-PH')}.`,
     patternType: 'frequency',
     transactions: coffeeTxns.map((t) => t.id),
-    suggestedAction: 'Setting a 3–4 day weekly limit preserves ~₱960 monthly.',
+    suggestedAction:
+      monthlySavingPesos > 0
+        ? `Reducing this pace to 4 runs/week would preserve about ₱${monthlySavingPesos.toLocaleString('en-PH')}/month at the observed average ticket.`
+        : 'Current pace is already at or below 4 runs/week; review the evidence before changing the habit.',
   };
 }
 
@@ -46,6 +52,7 @@ export function deriveDayOfWeekPattern(transactions: Transaction[], now: Date): 
   if (fridayDeliveryTxns.length < 2) return null;
 
   const totalCentavos = fridayDeliveryTxns.reduce((s, t) => s + t.amountCentavos, 0);
+  const averageOrderCentavos = Math.round(totalCentavos / fridayDeliveryTxns.length);
 
   return {
     id: 'pattern_friday_delivery',
@@ -54,7 +61,9 @@ export function deriveDayOfWeekPattern(transactions: Transaction[], now: Date): 
     description: `Takeout orders cluster on Friday evenings post-shift. Total recent delivery spend is ₱${(totalCentavos / 100).toLocaleString('en-PH')}.`,
     patternType: 'timing',
     transactions: fridayDeliveryTxns.map((t) => t.id),
-    suggestedAction: 'Meal planning for Friday evenings preserves ~₱1,800 monthly.',
+    suggestedAction: `Replacing one average Friday delivery each month would preserve about ₱${Math.round(
+      averageOrderCentavos / 100
+    ).toLocaleString('en-PH')} at the observed ticket size.`,
   };
 }
 
@@ -109,7 +118,9 @@ export function deriveLateEveningPattern(transactions: Transaction[], now: Date)
     id: 'pattern_late_evening',
     title: 'Late-Evening Discretionary Cluster',
     metric: `${lateTxns.length} orders after 9:00 PM`,
-    description: `Orders placed between 9:00 PM and midnight total ₱${(totalCentavos / 100).toLocaleString('en-PH')}, primarily from e-commerce apps.`,
+    description: `Tracked discretionary purchases after 9:00 PM total ₱${(totalCentavos / 100).toLocaleString(
+      'en-PH'
+    )}. Open the evidence list to see which merchants and categories contributed.`,
     patternType: 'timing',
     transactions: lateTxns.map((t) => t.id),
     suggestedAction: 'Use Kivra Wants cooling-off rule for unbudgeted evening browsing.',
@@ -133,7 +144,7 @@ export function deriveSubscriptionPattern(
     description: `Recurring digital services total ₱${(totalMonthlyCentavos / 100).toLocaleString('en-PH')} monthly. Review active usage to eliminate dormant tiers.`,
     patternType: 'subscription',
     transactions: [],
-    suggestedAction: 'Audit least-used streaming or utility tier before next billing cycle.',
+    suggestedAction: 'Review each recurring service before its next billing date; Kivra does not infer usage without explicit data.',
   };
 }
 
