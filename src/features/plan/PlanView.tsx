@@ -68,7 +68,7 @@ export const PlanView: React.FC = () => {
           <div className="flex justify-between items-center">
             <span className="font-semibold text-ink uppercase tracking-wider text-[10px]">Computed Scenario Impact</span>
             <span className="font-bold tabular-nums text-pine">
-              {scenarioResult.dailyDeltaPesos >= 0 ? `+₱${scenarioResult.dailyDeltaPesos}` : `-₱${Math.abs(scenarioResult.dailyDeltaPesos)}`}/day
+              {isPrivacyMasked ? '₱••••••/day' : `${scenarioResult.dailyDeltaPesos >= 0 ? '+' : '-'}₱${Math.abs(scenarioResult.dailyDeltaPesos)}/day`}
             </span>
           </div>
           <p className="text-ink-muted">{maskCurrencyText(scenarioResult.summary, isPrivacyMasked)}</p>
