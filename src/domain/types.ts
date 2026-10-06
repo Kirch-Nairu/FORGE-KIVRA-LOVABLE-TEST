@@ -1,6 +1,8 @@
 export type MoneyCentavos = number; // integer centavos (₱1 = 100)
 
 export type AccountType = 'cash' | 'ewallet' | 'payroll' | 'savings' | 'credit' | 'digital_bank';
+export type DemoPersonaId = 'mika' | 'dan' | 'ysa';
+export type PersonaId = DemoPersonaId | 'custom';
 
 export interface Account {
   id: string;
@@ -8,7 +10,7 @@ export interface Account {
   type: AccountType;
   institution?: string;
   balanceCentavos: MoneyCentavos;
-  isSpendable: boolean; // included in accessible cash
+  isSpendable: boolean;
   icon?: string;
 }
 
@@ -16,32 +18,38 @@ export interface Reservation {
   id: string;
   title: string;
   amountCentavos: MoneyCentavos;
-  targetDate: string; // ISO string
+  targetDate: string;
   purpose: string;
   isLocked: boolean;
 }
 
-export type TransactionType = 'expense' | 'income' | 'transfer' | 'iou_settlement' | 'debt_payment' | 'reconciliation';
+export type TransactionType =
+  | 'expense'
+  | 'income'
+  | 'transfer'
+  | 'iou_settlement'
+  | 'debt_payment'
+  | 'reconciliation';
 
 export interface Transaction {
   id: string;
-  timestamp: string; // ISO
+  timestamp: string;
   type: TransactionType;
   amountCentavos: MoneyCentavos;
   accountId: string;
-  toAccountId?: string; // for transfer
+  toAccountId?: string;
   category?: string;
   merchant?: string;
   note?: string;
-  contextTag?: string; // e.g. "late-night", "friday-delivery", "coffee-habit"
-  personId?: string; // for IOU
+  contextTag?: string;
+  personId?: string;
 }
 
 export interface Commitment {
   id: string;
   title: string;
   amountCentavos: MoneyCentavos;
-  dueDate: string; // YYYY-MM-DD
+  dueDate: string;
   isSubscription: boolean;
   category: string;
   isPaid: boolean;
@@ -55,7 +63,7 @@ export interface Debt {
   totalPrincipalCentavos: MoneyCentavos;
   remainingBalanceCentavos: MoneyCentavos;
   minimumDueCentavos: MoneyCentavos;
-  dueDate: string; // YYYY-MM-DD
+  dueDate: string;
   interestRateAnnual: number;
   type: 'credit_card' | 'salary_loan' | 'bnpl' | 'personal_loan';
 }
@@ -97,7 +105,7 @@ export interface InsightEvidence {
   metric: string;
   description: string;
   patternType: 'frequency' | 'timing' | 'anomaly' | 'subscription' | 'reconciliation';
-  transactions: string[]; // transaction IDs
+  transactions: string[];
   suggestedAction?: string;
 }
 
@@ -110,12 +118,12 @@ export interface FinancialHealthDimension {
 }
 
 export interface PersonaProfile {
-  id: 'mika' | 'dan' | 'ysa';
+  id: PersonaId;
   name: string;
   headline: string;
   monthlyNetCentavos: MoneyCentavos;
-  paydayDays: number[]; // e.g. [15, 30]
-  nextPayday: string; // YYYY-MM-DD
+  paydayDays: number[];
+  nextPayday: string;
   essentialDailyRunRateCentavos: MoneyCentavos;
   cushionDays: number;
   accounts: Account[];
