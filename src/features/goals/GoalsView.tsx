@@ -90,7 +90,7 @@ export const GoalsView: React.FC = () => {
                   extraContributionPesos === val ? 'bg-pine text-white border-pine font-bold' : 'bg-surface-alt border-ink-hairline text-ink'
                 }`}
               >
-                +₱{val}
+                {`+${privacyMoneyText(val * 100, isPrivacyMasked)}`}
               </button>
             ))}
           </div>
