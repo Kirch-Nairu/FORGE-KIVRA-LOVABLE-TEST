@@ -103,17 +103,29 @@ export const GoalsView: React.FC = () => {
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-ink-muted">Base Pace ({whatIfResult.monthsToTargetCurrent} months):</span>
-              <span className="font-semibold text-ink">{whatIfResult.completionDateCurrent}</span>
+              <span className="text-ink-muted">
+                {whatIfResult.monthsToTargetCurrent !== null
+                  ? `Base Pace (${whatIfResult.monthsToTargetCurrent} months):`
+                  : 'Base Pace:'}
+              </span>
+              <span className="font-semibold text-ink">
+                {whatIfResult.completionDateCurrent !== null ? whatIfResult.completionDateCurrent : 'Not projected'}
+              </span>
             </div>
             <div className="flex justify-between font-bold text-pine">
-              <span>Accelerated Pace ({whatIfResult.monthsToTargetNew} months):</span>
-              <span>{whatIfResult.completionDateNew}</span>
+              <span>
+                {whatIfResult.monthsToTargetNew !== null
+                  ? `Accelerated Pace (${whatIfResult.monthsToTargetNew} months):`
+                  : 'Accelerated Pace:'}
+              </span>
+              <span>
+                {whatIfResult.completionDateNew !== null ? whatIfResult.completionDateNew : 'Not projected'}
+              </span>
             </div>
             <div className="pt-2 border-t border-ink-hairline flex justify-between items-center text-ink">
               <span>Time Saved:</span>
               <span className="font-bold bg-pine-soft text-pine px-2 py-0.5 rounded">
-                {whatIfResult.monthsSaved} months sooner
+                {whatIfResult.monthsSaved !== null ? `${whatIfResult.monthsSaved} months sooner` : 'Not comparable'}
               </span>
             </div>
           </div>
