@@ -7,7 +7,7 @@ import { TransactionRow } from '../../components/kivra/TransactionRow';
 import { Waterfall } from '../../components/kivra/Waterfall';
 import { evaluateAffordability } from '../../domain/finance/affordability';
 import { deriveAllPatterns } from '../../domain/finance/patterns';
-import { prototypeClock } from '../../domain/clock';
+import { prototypeClock, getManilaDateKey } from '../../domain/clock';
 import { maskCurrencyText } from '../../lib/privacy';
 import { ArrowUpRight, ArrowDownLeft, ShieldCheck, HelpCircle, Calculator, Target, Clock } from 'lucide-react';
 
@@ -25,7 +25,7 @@ export const TodayView: React.FC<{ onNavigate: (tab: string) => void; onQuickAdd
 
   // 7. TODAY - ACTUAL TODAY METRICS (not future payday!)
   const todayDateStr = prototypeClock.isoDate;
-  const todayTxns = currentPersona.transactions.filter((t) => t.timestamp.startsWith(todayDateStr));
+  const todayTxns = currentPersona.transactions.filter((t) => getManilaDateKey(t.timestamp) === todayDateStr);
 
   // Inflow today = income + incoming IOU repayment (excluding transfers)
   const moneyInTodayCentavos = todayTxns
