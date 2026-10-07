@@ -1,14 +1,37 @@
 import { PersonaProfile, Transaction, Commitment, PersonIOU, InsightEvidence } from '../types';
 
-// Convert ISO timestamp to Manila timezone calendar values
+// Convert ISO timestamp to Manila timezone calendar values using Intl direct extraction
 function toManilaDateTime(timestamp: string): { dayOfWeek: number; dayOfMonth: number; hours: number } {
   const d = new Date(timestamp);
-  const manilaTime = d.toLocaleString('en-US', { timeZone: 'Asia/Manila' });
-  const manilaDate = new Date(manilaTime);
+  
+  // Extract day of week (0-6) via weekday name
+  const dayFormatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Manila',
+    weekday: 'long',
+  });
+  const dayName = dayFormatter.format(d);
+  const dayOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].indexOf(dayName);
+
+  // Extract day of month and hours via formatToParts
+  const partsFormatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Manila',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    hour12: false,
+  });
+  
+  const parts = partsFormatter.formatToParts(d);
+  const partMap: Record<string, string> = {};
+  parts.forEach((p) => {
+    partMap[p.type] = p.value;
+  });
+
   return {
-    dayOfWeek: manilaDate.getDay(),
-    dayOfMonth: manilaDate.getDate(),
-    hours: manilaDate.getHours(),
+    dayOfWeek,
+    dayOfMonth: parseInt(partMap.day, 10),
+    hours: parseInt(partMap.hour, 10),
   };
 }
 
