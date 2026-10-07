@@ -7,7 +7,7 @@ import {
   Goal,
 } from '../domain/types';
 import { DEMO_PERSONAS } from '../data/demo';
-import { prototypeClock } from '../domain/clock';
+import { prototypeClock, getManilaDateKey } from '../domain/clock';
 import { calculateSafeToSpend, SafeToSpendResult } from '../domain/finance/safeToSpend';
 import { evaluateFinancialHealth } from '../domain/finance/health';
 
@@ -76,6 +76,33 @@ function mutationCategory(mut: QuickAddMutation): string {
     default:
       return mut.category || 'Discretionary';
   }
+}
+
+function deriveIouStatusAfterPartialSettlement(
+  iou: PersonaProfile['ious'][0],
+  remaining: number
+): 'settled' | 'partially_paid' | 'overdue' {
+  // Rule A: fully settled
+  if (remaining === 0) {
+    return 'settled';
+  }
+
+  // Rule B: partial and overdue by date
+  if (iou.dueDate) {
+    const dueDateKey = getManilaDateKey(`${iou.dueDate}T00:00:00+08:00`);
+    const currentDateKey = getManilaDateKey(prototypeClock.now);
+    if (dueDateKey < currentDateKey) {
+      return 'overdue';
+    }
+    return 'partially_paid';
+  }
+
+  // Rule D: no dueDate but already marked overdue
+  if (iou.status === 'overdue') {
+    return 'overdue';
+  }
+
+  return 'partially_paid';
 }
 
 function validateMutation(profile: PersonaProfile, mut: QuickAddMutation): MutationResult {
@@ -282,7 +309,7 @@ export const KivraProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           return {
             ...i,
             amountCentavos: remaining,
-            status: remaining === 0 ? 'settled' : 'partially_paid',
+            status: deriveIouStatusAfterPartialSettlement(i, remaining),
           };
         });
 
