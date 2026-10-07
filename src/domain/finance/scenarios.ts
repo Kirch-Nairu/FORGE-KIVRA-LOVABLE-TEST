@@ -1,5 +1,6 @@
 import { PersonaProfile, MoneyCentavos } from '../types';
 import { calculateSafeToSpend, SafeToSpendResult } from './safeToSpend';
+import { getManilaDateKey } from '../clock';
 
 export interface PlanScenarioOptions {
   reduceDiscretionaryMonthlyCentavos?: MoneyCentavos;
@@ -153,11 +154,35 @@ export function evaluatePlanScenario(
 export interface GoalWhatIfResult {
   currentMonthlyPesos: number;
   newMonthlyPesos: number;
-  monthsToTargetCurrent: number;
-  monthsToTargetNew: number;
-  monthsSaved: number;
-  completionDateCurrent: string;
-  completionDateNew: string;
+  monthsToTargetCurrent: number | null;
+  monthsToTargetNew: number | null;
+  monthsSaved: number | null;
+  completionDateCurrent: string | null;
+  completionDateNew: string | null;
+}
+
+// Add month to Manila date with day-of-month clamping
+function addMonthsManilaDate(date: Date, months: number): string {
+  const dateKey = getManilaDateKey(date);
+  const [year, month, day] = dateKey.split('-').map(Number);
+  
+  let newMonth = month + months;
+  let newYear = year;
+  
+  while (newMonth > 12) {
+    newMonth -= 12;
+    newYear += 1;
+  }
+  while (newMonth < 1) {
+    newMonth += 12;
+    newYear -= 1;
+  }
+  
+  // Clamp day to valid range for target month
+  const lastDayOfMonth = new Date(newYear, newMonth, 0).getDate();
+  const clampedDay = Math.min(day, lastDayOfMonth);
+  
+  return `${newYear}-${String(newMonth).padStart(2, '0')}-${String(clampedDay).padStart(2, '0')}`;
 }
 
 export function evaluateGoalWhatIf(
@@ -168,18 +193,34 @@ export function evaluateGoalWhatIf(
   currentDate: Date
 ): GoalWhatIfResult {
   const remainingCentavos = Math.max(0, targetCentavos - currentCentavos);
-  const curMonthly = Math.max(10000, baseMonthlyCentavos);
-  const newMonthly = Math.max(10000, baseMonthlyCentavos + deltaMonthlyCentavos);
+  const curMonthly = Math.max(0, baseMonthlyCentavos);
+  const newMonthly = Math.max(0, baseMonthlyCentavos + deltaMonthlyCentavos);
+  const currentDateKey = getManilaDateKey(currentDate);
 
-  const monthsCurrent = remainingCentavos === 0 ? 0 : Math.ceil(remainingCentavos / curMonthly);
-  const monthsNew = remainingCentavos === 0 ? 0 : Math.ceil(remainingCentavos / newMonthly);
-  const monthsSaved = Math.max(0, monthsCurrent - monthsNew);
+  // Rule B: Already achieved
+  if (remainingCentavos === 0) {
+    return {
+      currentMonthlyPesos: Math.round(curMonthly / 100),
+      newMonthlyPesos: Math.round(newMonthly / 100),
+      monthsToTargetCurrent: 0,
+      monthsToTargetNew: 0,
+      monthsSaved: 0,
+      completionDateCurrent: currentDateKey,
+      completionDateNew: currentDateKey,
+    };
+  }
 
-  const d1 = new Date(currentDate);
-  d1.setMonth(d1.getMonth() + monthsCurrent);
+  // Rule C: Zero contribution means unreachable
+  const monthsCurrent = curMonthly > 0 ? Math.ceil(remainingCentavos / curMonthly) : null;
+  const monthsNew = newMonthly > 0 ? Math.ceil(remainingCentavos / newMonthly) : null;
 
-  const d2 = new Date(currentDate);
-  d2.setMonth(d2.getMonth() + monthsNew);
+  // Rule E: monthsSaved only when both projections are reachable
+  const monthsSaved =
+    monthsCurrent !== null && monthsNew !== null ? Math.max(0, monthsCurrent - monthsNew) : null;
+
+  // Completion dates use Manila date authority
+  const completionDateCurrent = monthsCurrent !== null ? addMonthsManilaDate(currentDate, monthsCurrent) : null;
+  const completionDateNew = monthsNew !== null ? addMonthsManilaDate(currentDate, monthsNew) : null;
 
   return {
     currentMonthlyPesos: Math.round(curMonthly / 100),
@@ -187,7 +228,7 @@ export function evaluateGoalWhatIf(
     monthsToTargetCurrent: monthsCurrent,
     monthsToTargetNew: monthsNew,
     monthsSaved,
-    completionDateCurrent: d1.toISOString().split('T')[0],
-    completionDateNew: d2.toISOString().split('T')[0],
+    completionDateCurrent,
+    completionDateNew,
   };
 }
