@@ -1,5 +1,19 @@
 import { PersonaProfile, Transaction, Commitment, PersonIOU, InsightEvidence } from '../types';
 
+// Convert ISO timestamp to Manila timezone calendar values
+function toManilaDateTime(timestamp: string): { dayOfWeek: number; dayOfMonth: number; hours: number } {
+  const d = new Date(timestamp);
+  const manilaTime = d.toLocaleString('en-US', { timeZone: 'Asia/Manila' });
+  const manilaDate = new Date(manilaTime);
+  return {
+    dayOfWeek: manilaDate.getDay(),
+    dayOfMonth: manilaDate.getDate(),
+    hours: manilaDate.getHours(),
+  };
+}
+
+const POSTPAYDAY_WINDOW_DAYS = 35;
+
 export function deriveCoffeePattern(transactions: Transaction[], now: Date): InsightEvidence | null {
   const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
   const coffeeTxns = transactions.filter((t) => {
@@ -41,12 +55,12 @@ export function deriveDayOfWeekPattern(transactions: Transaction[], now: Date): 
   // Check for Friday delivery cluster over last 35 days (5 weeks)
   const fiveWeeksAgo = new Date(now.getTime() - 35 * 24 * 60 * 60 * 1000);
   const fridayDeliveryTxns = transactions.filter((t) => {
-    const d = new Date(t.timestamp);
-    const isFriday = d.getDay() === 5;
+    const manila = toManilaDateTime(t.timestamp);
+    const isFriday = manila.dayOfWeek === 5;
     const isDelivery =
       t.contextTag === 'friday-delivery' ||
       (t.merchant && (t.merchant.toLowerCase().includes('grab') || t.merchant.toLowerCase().includes('foodpanda')));
-    return t.type === 'expense' && isFriday && isDelivery && d.getTime() >= fiveWeeksAgo.getTime();
+    return t.type === 'expense' && isFriday && isDelivery && new Date(t.timestamp).getTime() >= fiveWeeksAgo.getTime();
   });
 
   if (fridayDeliveryTxns.length < 2) return null;
@@ -72,19 +86,20 @@ export function derivePostPaydayPattern(
   paydayDays: number[],
   now: Date
 ): InsightEvidence | null {
+  const postPaydayStart = new Date(now.getTime() - POSTPAYDAY_WINDOW_DAYS * 24 * 60 * 60 * 1000);
   const surgeTxns = transactions.filter((t) => {
     if (t.type !== 'expense') return false;
-    const d = new Date(t.timestamp);
-    const day = d.getDate();
+    const manila = toManilaDateTime(t.timestamp);
+    const txnTime = new Date(t.timestamp).getTime();
     // within 48h after a payday (e.g., 15th-17th or 30th/31st/1st/2nd)
     const isPostPayday =
       paydayDays.some((p) => {
         if (p === 30 || p === 31) {
-          return day === 30 || day === 31 || day === 1 || day === 2;
+          return manila.dayOfMonth === 30 || manila.dayOfMonth === 31 || manila.dayOfMonth === 1 || manila.dayOfMonth === 2;
         }
-        return day >= p && day <= p + 2;
+        return manila.dayOfMonth >= p && manila.dayOfMonth <= p + 2;
       }) || t.contextTag === 'post-payday';
-    return isPostPayday;
+    return isPostPayday && txnTime >= postPaydayStart.getTime();
   });
 
   if (surgeTxns.length < 2) return null;
@@ -105,8 +120,8 @@ export function derivePostPaydayPattern(
 export function deriveLateEveningPattern(transactions: Transaction[], now: Date): InsightEvidence | null {
   const lateTxns = transactions.filter((t) => {
     if (t.type !== 'expense') return false;
-    const d = new Date(t.timestamp);
-    const hour = d.getHours();
+    const manila = toManilaDateTime(t.timestamp);
+    const hour = manila.hours;
     return hour >= 21 || hour < 4 || t.contextTag === 'late-night';
   });
 
